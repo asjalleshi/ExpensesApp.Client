@@ -1,137 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Expenses</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expenses List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
 
-  <header class="site-header">
-    <div class="container header-row">
-      <a class="brand" href="index.html">Expense Tracker</a>
-      <nav class="nav">
-        <a href="index.html">Home</a>
-        <a href="add.html">Add</a>
-        <a href="expenses.html">Expenses</a>
-        <a href="currency.html">Currency</a>
-      </nav>
-      <p class="clock" id="clock">--:--:--</p>
+    <div class="container mt-5">
+        <header class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <h1 class="h3 mb-0">Expense Tracker</h1>
+            <nav>
+                <a href="index.html" class="btn btn-outline-primary btn-sm">Home</a>
+                <a href="add.html" class="btn btn-outline-primary btn-sm">Add Expense</a>
+                <a href="expenses.html" class="btn btn-primary btn-sm">Expenses List</a>
+            </nav>
+        </header>
+
+        <h3 class="mb-3">All Expenses</h3>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover bg-white shadow-sm rounded">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="expensesTableBody">
+                    <!-- Të dhënat do të ngarkohen nga JS -->
+                </tbody>
+            </table>
+        </div>
     </div>
-  </header>
 
-  <main class="container page">
+    <!-- Script i thjeshte per te lexuar te dhenat -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tableBody = document.getElementById('expensesTableBody');
+            const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
 
-    <!-- Quick stats, updated by js/expenses.js -->
-    <section class="stats">
-      <div class="card stat">
-        <span class="stat-label">Total spent</span>
-        <span class="stat-value" id="stat-total">0 Lek</span>
-      </div>
-      <div class="card stat">
-        <span class="stat-label">Number of expenses</span>
-        <span class="stat-value" id="stat-count">0</span>
-      </div>
-      <div class="card stat">
-        <span class="stat-label">Average per expense</span>
-        <span class="stat-value" id="stat-average">0 Lek</span>
-      </div>
-      <div class="card stat">
-        <span class="stat-label">Biggest expense</span>
-        <span class="stat-value stat-small" id="stat-biggest">none</span>
-      </div>
-    </section>
+            if (expenses.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center">No expenses found.</td></tr>';
+                return;
+            }
 
-    <section class="card">
-      <div class="toolbar">
-        <h2>Expenses <span class="count" id="count"></span></h2>
-        <div class="toolbar-controls">
-          <input type="search" id="search" placeholder="Search by title">
-          <select id="filter-category">
-            <option value="">All categories</option>
-            <option value="Food">Food</option>
-            <option value="Transport">Transport</option>
-            <option value="Books">Books</option>
-            <option value="Rent">Rent</option>
-            <option value="Fun">Fun</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
-
-      <table class="expense-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Title</th>
-            <th>Category</th>
-            <th class="num">Amount</th>
-            <th class="actions">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="expense-list">
-          <!-- rows are rendered by js/expenses.js -->
-        </tbody>
-      </table>
-
-      <p class="empty" id="empty-message">
-        No expenses yet. <a href="add.html">Add one</a> or
-        <button type="button" class="link-btn" id="load-sample">load sample data</button>.
-      </p>
-
-      <div class="danger-zone">
-        <button type="button" class="btn btn-danger" id="clear-all">Delete all expenses</button>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Edit modal: hidden until JavaScript adds the "open" class -->
-  <div class="modal-overlay" id="edit-modal">
-    <div class="modal">
-      <h2>Edit expense</h2>
-      <form id="edit-form" novalidate>
-        <input type="hidden" id="edit-id">
-
-        <div class="field">
-          <label for="edit-title">Title</label>
-          <input type="text" id="edit-title" name="title" required>
-          <small class="error" data-for="title"></small>
-        </div>
-
-        <div class="field">
-          <label for="edit-amount">Amount (Lek)</label>
-          <input type="number" id="edit-amount" name="amount" min="1" step="1" required>
-          <small class="error" data-for="amount"></small>
-        </div>
-
-        <div class="field">
-          <label for="edit-category">Category</label>
-          <select id="edit-category" name="category" required>
-            <option value="Food">Food</option>
-            <option value="Transport">Transport</option>
-            <option value="Books">Books</option>
-            <option value="Rent">Rent</option>
-            <option value="Fun">Fun</option>
-            <option value="Other">Other</option>
-          </select>
-          <small class="error" data-for="category"></small>
-        </div>
-
-        <div class="field">
-          <label for="edit-date">Date</label>
-          <input type="date" id="edit-date" name="date" required>
-          <small class="error" data-for="date"></small>
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" class="btn" id="cancel-edit">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save changes</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
+            tableBody.innerHTML = expenses.map(exp => `
+                <tr>
+                    <td>${exp.title}</td>
+                    <td><span class="badge bg-secondary">${exp.category}</span></td>
+                    <td>$${exp.amount.toFixed(2)}</td>
+                    <td>${exp.date}</td>
+                </tr>
+            `).join('');
+        });
+    </script>
 </body>
 </html>
